@@ -1,0 +1,286 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local camera = game.Workspace.CurrentCamera
+
+-- Змінні
+local espEnabled = true -- ESP увімкнено за замовчуванням
+local espElements = {}
+local visibleCheck = true -- Перевірка видимості для ESP
+local aimDistance = 500 -- Дистанція аїмбота
+local espDistance = 500 -- Дистанція ESP
+local smoothness = 0.5 -- Плавність аїмбота
+local aimSpeed = 1.0 -- Швидкість аїмбота
+local targetMode = "Auto" -- Режим наведення (Auto, Head, Torso)
+local fovRadius = 200 -- Радіус FOV
+local fovColor = Color3.fromRGB(0, 255, 255) -- Колір FOV-кола
+local espColor = Color3.fromRGB(0, 255, 0) -- Колір ESP
+local isAiming = false -- Стан аїмбота
+
+-- Коло FOV
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Name = "AimbotFOV"
+screenGui.ResetOnSpawn = false
+screenGui.Enabled = true
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local fovCircle = Instance.new("Frame")
+fovCircle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
+fovCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+fovCircle.BackgroundColor3 = fovColor
+fovCircle.BackgroundTransparency = 0.8
+fovCircle.BorderSizePixel = 0
+fovCircle.ZIndex = 10
+fovCircle.Visible = false -- Видиме лише під час прицілювання
+fovCircle.Parent = screenGui
+
+local fovCircleCorner = Instance.new("UICorner")
+fovCircleCorner.CornerRadius = UDim.new(1, 0)
+fovCircleCorner.Parent = fovCircle
+
+local fovStroke = Instance.new("UIStroke")
+fovStroke.Color = fovColor
+fovStroke.Thickness = 3
+fovStroke.Transparency = 0
+fovStroke.Parent = fovCircle
+
+-- Логіка ESP
+local function isVisible(targetPlayer, targetPart)
+    if not visibleCheck then return true end
+    if not player.Character or not player.Character:FindFirstChild("Head") then return false end
+    if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild(targetPart) then return false end
+    local part = targetPlayer.Character[targetPart]
+    local rayOrigin = camera.CFrame.Position
+    local rayDirection = (part.Position - rayOrigin).Unit * (part.Position - rayOrigin).Magnitude
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {player.Character}
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+    return not result or result.Instance:IsDescendantOf(targetPlayer.Character)
+end
+
+local function getActiveTool(character)
+    -- Перевіряємо, чи є активний інструмент у персонажа
+    for _, child in pairs(character:GetChildren()) do
+        if child:IsA("Tool") then
+            return child.Name
+        end
+    end
+    return "No Item"
+end
+
+local function createEsp(targetPlayer)
+    if targetPlayer == player or not targetPlayer.Character then return end
+    local character = targetPlayer.Character
+    local head = character:FindFirstChild("Head")
+    local humanoid = character:FindFirstChild("Humanoid")
+    if not head or not humanoid or humanoid.Health <= 0 then return end
+
+    local distance = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and (player.Character.HumanoidRootPart.Position - head.Position).Magnitude or math.huge
+    if distance > espDistance then return end
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Adornee = head
+    billboard.Size = UDim2.new(0, 150, 0, 100) -- Збільшено розмір для нового рядка
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Enabled = true
+    billboard.ZIndex = 10
+    billboard.Parent = head
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 0.25, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = targetPlayer.Name
+    nameLabel.TextColor3 = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+    nameLabel.TextSize = 14
+    nameLabel.Font = Enum.Font.SourceSansBold
+    nameLabel.ZIndex = 11
+    nameLabel.Parent = billboard
+
+    local healthLabel = Instance.new("TextLabel")
+    healthLabel.Size = UDim2.new(1, 0, 0.25, 0)
+    healthLabel.Position = UDim2.new(0, 0, 0.25, 0)
+    healthLabel.BackgroundTransparency = 1
+    healthLabel.Text = "HP: " .. math.floor(humanoid.Health)
+    healthLabel.TextColor3 = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+    healthLabel.TextSize = 12
+    healthLabel.Font = Enum.Font.SourceSans
+    healthLabel.ZIndex = 11
+    healthLabel.Parent = billboard
+
+    local distanceLabel = Instance.new("TextLabel")
+    distanceLabel.Size = UDim2.new(1, 0, 0.25, 0)
+    distanceLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.Text = "Distance: " .. math.floor(distance) .. " m"
+    distanceLabel.TextColor3 = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+    distanceLabel.TextSize = 12
+    distanceLabel.Font = Enum.Font.SourceSans
+    distanceLabel.ZIndex = 11
+    distanceLabel.Parent = billboard
+
+    local itemLabel = Instance.new("TextLabel")
+    itemLabel.Size = UDim2.new(1, 0, 0.25, 0)
+    itemLabel.Position = UDim2.new(0, 0, 0.75, 0)
+    itemLabel.BackgroundTransparency = 1
+    itemLabel.Text = "Item: " .. getActiveTool(character)
+    itemLabel.TextColor3 = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+    itemLabel.TextSize = 12
+    itemLabel.Font = Enum.Font.SourceSans
+    itemLabel.ZIndex = 11
+    itemLabel.Parent = billboard
+
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = character
+    highlight.FillColor = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Parent = character
+
+    espElements[targetPlayer] = {
+        billboard = billboard,
+        highlight = highlight,
+        healthLabel = healthLabel,
+        distanceLabel = distanceLabel,
+        nameLabel = nameLabel,
+        itemLabel = itemLabel
+    }
+end
+
+local function removeEsp(targetPlayer)
+    if espElements[targetPlayer] then
+        pcall(function()
+            if espElements[targetPlayer].billboard then
+                espElements[targetPlayer].billboard:Destroy()
+            end
+            if espElements[targetPlayer].highlight then
+                espElements[targetPlayer].highlight:Destroy()
+            end
+        end)
+        espElements[targetPlayer] = nil
+    end
+end
+
+local function updateEsp()
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        pcall(function()
+            if espEnabled then
+                if not espElements[targetPlayer] then
+                    createEsp(targetPlayer)
+                elseif espElements[targetPlayer] then
+                    local billboard = espElements[targetPlayer].billboard
+                    local highlight = espElements[targetPlayer].highlight
+                    local healthLabel = espElements[targetPlayer].healthLabel
+                    local distanceLabel = espElements[targetPlayer].distanceLabel
+                    local nameLabel = espElements[targetPlayer].nameLabel
+                    local itemLabel = espElements[targetPlayer].itemLabel
+                    if targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") and targetPlayer.Character:FindFirstChild("Head") then
+                        local humanoid = targetPlayer.Character.Humanoid
+                        local distance = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and (player.Character.HumanoidRootPart.Position - targetPlayer.Character.Head.Position).Magnitude or math.huge
+                        if distance > espDistance or humanoid.Health <= 0 or not targetPlayer.Character then
+                            removeEsp(targetPlayer)
+                        else
+                            local isVis = isVisible(targetPlayer, "Head")
+                            nameLabel.TextColor3 = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                            healthLabel.Text = "HP: " .. math.floor(humanoid.Health)
+                            healthLabel.TextColor3 = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                            distanceLabel.Text = "Distance: " .. math.floor(distance) .. " m"
+                            distanceLabel.TextColor3 = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                            itemLabel.Text = "Item: " .. getActiveTool(targetPlayer.Character)
+                            itemLabel.TextColor3 = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                            highlight.FillColor = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                            billboard.Enabled = true
+                        end
+                    else
+                        removeEsp(targetPlayer)
+                    end
+                end
+            else
+                removeEsp(targetPlayer)
+            end
+        end)
+    end
+end
+
+-- Логіка Aimbot
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local closestValue = math.huge
+    local closestPart = nil
+    local mousePos = UserInputService:GetMouseLocation()
+
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return nil, nil end
+
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if targetPlayer ~= player and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Head") and targetPlayer.Character:FindFirstChild("HumanoidRootPart") and targetPlayer.Character:FindFirstChild("Humanoid") then
+            local humanoid = targetPlayer.Character.Humanoid
+            if humanoid.Health > 0 then
+                local distance = (player.Character.HumanoidRootPart.Position - targetPlayer.Character.HumanoidRootPart.Position).Magnitude
+                if distance <= aimDistance then
+                    local screenPos, onScreen = camera:WorldToViewportPoint(targetPlayer.Character["Head"].Position)
+                    if onScreen then
+                        local value = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mousePos.X, mousePos.Y)).Magnitude
+                        if value < closestValue and value <= fovRadius then
+                            closestValue = value
+                            closestPlayer = targetPlayer
+                            closestPart = targetMode == "Auto" and (math.random() > 0.5 and "Head" or "HumanoidRootPart") or (targetMode == "Head" and "Head" or "HumanoidRootPart")
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    return closestPlayer, closestPart
+end
+
+local function aimAt(target, partName)
+    if not target or not target.Character or not target.Character:FindFirstChild(partName) then return end
+    local partPos = target.Character[partName].Position
+    local currentCamCFrame = camera.CFrame
+    local targetCFrame = CFrame.new(currentCamCFrame.Position, partPos)
+    local lerpValue = smoothness * aimSpeed
+    local tweenInfo = TweenInfo.new(0.1 / lerpValue, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(camera, tweenInfo, {CFrame = targetCFrame}):Play()
+end
+
+-- Управління аїмботом
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        isAiming = true
+        fovCircle.Visible = true
+        fovStroke.Color = Color3.fromRGB(255, 0, 0) -- Червоний при активації
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        isAiming = false
+        fovCircle.Visible = false
+        fovStroke.Color = fovColor -- Повернення до початкового кольору
+    end
+end)
+
+-- Очищення ESP при виході гравця
+Players.PlayerRemoving:Connect(function(targetPlayer)
+    removeEsp(targetPlayer)
+end)
+
+-- Основний цикл
+RunService.RenderStepped:Connect(function()
+    pcall(function()
+        updateEsp()
+        if isAiming then
+            local closestPlayer, closestPart = getClosestPlayer()
+            if closestPlayer and closestPart then
+                aimAt(closestPlayer, closestPart)
+            end
+        end
+    end)
+end)
