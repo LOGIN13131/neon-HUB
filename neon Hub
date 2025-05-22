@@ -1,0 +1,1495 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local camera = game.Workspace.CurrentCamera
+
+-- Налаштування GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+screenGui.Name = "NeonVreduxHub"
+screenGui.ResetOnSpawn = false
+
+-- Екран завантаження Neon Hub
+local splashFrame = Instance.new("Frame")
+splashFrame.Size = UDim2.new(1, 0, 1, 0)
+splashFrame.Position = UDim2.new(0, 0, 0, 0)
+splashFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+splashFrame.BackgroundTransparency = 0.4
+splashFrame.BorderSizePixel = 0
+splashFrame.Parent = screenGui
+
+local splashText = Instance.new("TextLabel")
+splashText.Size = UDim2.new(0.8, 0, 0.3, 0)
+splashText.Position = UDim2.new(0.1, 0, 0.35, 0)
+splashText.BackgroundTransparency = 1
+splashText.Text = "Neon Hub"
+splashText.TextColor3 = Color3.fromRGB(0, 255, 255)
+splashText.TextSize = 80
+splashText.Font = Enum.Font.SourceSansBold
+splashText.TextStrokeTransparency = 0.4
+splashText.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
+splashText.Parent = splashFrame
+
+local splashGradient = Instance.new("UIGradient")
+splashGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 255))
+}
+splashGradient.Rotation = 90
+splashGradient.Parent = splashText
+
+local splashTween = TweenService:Create(splashText, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {TextTransparency = 0.3})
+splashTween:Play()
+
+wait(3)
+splashFrame:Destroy()
+
+-- Водяний знак
+local watermarkFrame = Instance.new("Frame")
+watermarkFrame.Size = UDim2.new(0, 320, 0, 50)
+watermarkFrame.Position = UDim2.new(1, -330, 0, 10)
+watermarkFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+watermarkFrame.BackgroundTransparency = 0.6
+watermarkFrame.BorderSizePixel = 0
+watermarkFrame.Parent = screenGui
+
+local watermarkGradient = Instance.new("UIGradient")
+watermarkGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 255))
+}
+watermarkGradient.Rotation = 45
+watermarkGradient.Parent = watermarkFrame
+
+local watermarkCorner = Instance.new("UICorner")
+watermarkCorner.CornerRadius = UDim.new(0, 10)
+watermarkCorner.Parent = watermarkFrame
+
+local watermarkText = Instance.new("TextLabel")
+watermarkText.Size = UDim2.new(1, -10, 1, -10)
+watermarkText.Position = UDim2.new(0, 5, 0, 5)
+watermarkText.BackgroundTransparency = 1
+watermarkText.Text = "Neon Premium | " .. os.date("%I:%M %p EEST", os.time())
+watermarkText.TextColor3 = Color3.fromRGB(255, 255, 255)
+watermarkText.TextSize = 18
+watermarkText.Font = Enum.Font.SourceSansBold
+watermarkText.TextStrokeTransparency = 0.5
+watermarkText.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+watermarkText.Parent = watermarkFrame
+
+-- Оновлення часу водяного знаку
+spawn(function()
+    while true do
+        watermarkText.Text = "Neon Premium | " .. os.date("%I:%M %p EEST", os.time())
+        wait(1)
+    end
+end)
+
+-- Водяний знак команди
+local teamWatermark = Instance.new("TextLabel")
+teamWatermark.Size = UDim2.new(0, 300, 0, 30)
+teamWatermark.Position = UDim2.new(1, -310, 0, 60)
+teamWatermark.BackgroundTransparency = 1
+teamWatermark.Text = "Neon Squad"
+teamWatermark.TextColor3 = Color3.fromRGB(255, 0, 255)
+teamWatermark.TextSize = 20
+teamWatermark.Font = Enum.Font.SourceSansBold
+teamWatermark.TextStrokeTransparency = 0.5
+teamWatermark.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+teamWatermark.Parent = screenGui
+
+-- Основний фрейм GUI
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 600, 0, 800)
+frame.Position = UDim2.new(0.5, -300, 0.5, -400)
+frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+frame.BackgroundTransparency = 0.3
+frame.BorderSizePixel = 0
+frame.Parent = screenGui
+
+local frameGradient = Instance.new("UIGradient")
+frameGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))
+}
+frameGradient.Rotation = 45
+frameGradient.Parent = frame
+
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 15)
+frameCorner.Parent = frame
+
+local frameGlow = Instance.new("UIStroke")
+frameGlow.Thickness = 4
+frameGlow.Color = Color3.fromRGB(0, 255, 255)
+frameGlow.Transparency = 0.5
+frameGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+frameGlow.Parent = frame
+
+local frameGlowTween = TweenService:Create(frameGlow, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Transparency = 0.2})
+frameGlowTween:Play()
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 60)
+title.Position = UDim2.new(0, 0, 0, 10)
+title.BackgroundTransparency = 1
+title.Text = "Neon Hub"
+title.TextColor3 = Color3.fromRGB(0, 255, 255)
+title.TextSize = 30
+title.Font = Enum.Font.SourceSansBold
+title.TextStrokeTransparency = 0.3
+title.TextStrokeColor3 = Color3.fromRGB(255, 0, 255)
+title.Parent = frame
+
+local titleGradient = Instance.new("UIGradient")
+titleGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 255)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 0, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 255))
+}
+titleGradient.Rotation = 90
+titleGradient.Parent = title
+
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 40, 0, 40)
+closeButton.Position = UDim2.new(1, -50, 0, 10)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextSize = 20
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.Parent = frame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 10)
+closeCorner.Parent = closeButton
+
+local closeGradient = Instance.new("UIGradient")
+closeGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 100, 100)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 50, 50))
+}
+closeGradient.Parent = closeButton
+
+local minimizeButton = Instance.new("TextButton")
+minimizeButton.Size = UDim2.new(0, 40, 0, 40)
+minimizeButton.Position = UDim2.new(1, -100, 0, 10)
+minimizeButton.BackgroundColor3 = Color3.fromRGB(255, 165, 0)
+minimizeButton.Text = "-"
+minimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minimizeButton.TextSize = 20
+minimizeButton.Font = Enum.Font.SourceSansBold
+minimizeButton.Parent = frame
+
+local minimizeCorner = Instance.new("UICorner")
+minimizeCorner.CornerRadius = UDim.new(0, 10)
+minimizeCorner.Parent = minimizeButton
+
+local minimizeGradient = Instance.new("UIGradient")
+minimizeGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 200, 100)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 165, 0))
+}
+minimizeGradient.Parent = minimizeButton
+
+local openButton = Instance.new("TextButton")
+openButton.Size = UDim2.new(0, 60, 0, 60)
+openButton.Position = UDim2.new(0, 10, 0, 10)
+openButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+openButton.Text = "Open"
+openButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+openButton.TextSize = 20
+openButton.Font = Enum.Font.SourceSansBold
+openButton.Parent = screenGui
+openButton.Visible = false
+
+local openCorner = Instance.new("UICorner")
+openCorner.CornerRadius = UDim.new(0, 10)
+openCorner.Parent = openButton
+
+local openGradient = Instance.new("UIGradient")
+openGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 180, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+openGradient.Parent = openButton
+
+-- Система вкладок
+local tabFrame = Instance.new("Frame")
+tabFrame.Size = UDim2.new(1, -40, 0, 40)
+tabFrame.Position = UDim2.new(0, 20, 0, 70)
+tabFrame.BackgroundTransparency = 1
+tabFrame.Parent = frame
+
+local aimbotTab = Instance.new("TextButton")
+aimbotTab.Size = UDim2.new(0, 140, 1, 0)
+aimbotTab.Position = UDim2.new(0, 0, 0, 0)
+aimbotTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+aimbotTab.Text = "Aimbot"
+aimbotTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+aimbotTab.TextSize = 18
+aimbotTab.Font = Enum.Font.SourceSansBold
+aimbotTab.Parent = tabFrame
+
+local espTab = Instance.new("TextButton")
+espTab.Size = UDim2.new(0, 140, 1, 0)
+espTab.Position = UDim2.new(0, 150, 0, 0)
+espTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+espTab.Text = "ESP"
+espTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+espTab.TextSize = 18
+espTab.Font = Enum.Font.SourceSansBold
+espTab.Parent = tabFrame
+
+local generalTab = Instance.new("TextButton")
+generalTab.Size = UDim2.new(0, 140, 1, 0)
+generalTab.Position = UDim2.new(0, 300, 0, 0)
+generalTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+generalTab.Text = "General"
+generalTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+generalTab.TextSize = 18
+generalTab.Font = Enum.Font.SourceSansBold
+generalTab.Parent = tabFrame
+
+local visualsTab = Instance.new("TextButton")
+visualsTab.Size = UDim2.new(0, 140, 1, 0)
+visualsTab.Position = UDim2.new(0, 450, 0, 0)
+visualsTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+visualsTab.Text = "Visuals"
+visualsTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+visualsTab.TextSize = 18
+visualsTab.Font = Enum.Font.SourceSansBold
+visualsTab.Parent = tabFrame
+
+local tabCorner = Instance.new("UICorner")
+tabCorner.CornerRadius = UDim.new(0, 10)
+tabCorner:Clone().Parent = aimbotTab
+tabCorner:Clone().Parent = espTab
+tabCorner:Clone().Parent = generalTab
+tabCorner:Clone().Parent = visualsTab
+
+local tabGradient = Instance.new("UIGradient")
+tabGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+tabGradient:Clone().Parent = aimbotTab
+tabGradient:Clone().Parent = espTab
+tabGradient:Clone().Parent = generalTab
+tabGradient:Clone().Parent = visualsTab
+
+local tabStroke = Instance.new("UIStroke")
+tabStroke.Color = Color3.fromRGB(0, 255, 255)
+tabStroke.Thickness = 2
+tabStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+tabStroke:Clone().Parent = aimbotTab
+tabStroke:Clone().Parent = espTab
+tabStroke:Clone().Parent = generalTab
+tabStroke:Clone().Parent = visualsTab
+
+local contentFrame = Instance.new("Frame")
+contentFrame.Size = UDim2.new(1, -40, 0, 670)
+contentFrame.Position = UDim2.new(0, 20, 0, 110)
+contentFrame.BackgroundTransparency = 0.5
+contentFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+contentFrame.Parent = frame
+
+local contentGradient = Instance.new("UIGradient")
+contentGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(20, 20, 20))
+}
+contentGradient.Parent = contentFrame
+
+local contentCorner = Instance.new("UICorner")
+contentCorner.CornerRadius = UDim.new(0, 15)
+contentCorner.Parent = contentFrame
+
+local contentGlow = Instance.new("UIStroke")
+contentGlow.Thickness = 3
+contentGlow.Color = Color3.fromRGB(0, 255, 255)
+contentGlow.Transparency = 0.6
+contentGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+contentGlow.Parent = contentFrame
+
+local contentGlowTween = TweenService:Create(contentGlow, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Transparency = 0.3})
+contentGlowTween:Play()
+
+-- Фрейми вмісту вкладок
+local aimbotContent = Instance.new("Frame")
+aimbotContent.Size = UDim2.new(1, 0, 1, 0)
+aimbotContent.Position = UDim2.new(0, 0, 0, 0)
+aimbotContent.BackgroundTransparency = 1
+aimbotContent.Visible = true
+aimbotContent.Parent = contentFrame
+
+local espContent = Instance.new("Frame")
+espContent.Size = UDim2.new(1, 0, 1, 0)
+espContent.Position = UDim2.new(0, 0, 0, 0)
+espContent.BackgroundTransparency = 1
+espContent.Visible = false
+espContent.Parent = contentFrame
+
+local generalContent = Instance.new("Frame")
+generalContent.Size = UDim2.new(1, 0, 1, 0)
+generalContent.Position = UDim2.new(0, 0, 0, 0)
+generalContent.BackgroundTransparency = 1
+generalContent.Visible = false
+generalContent.Parent = contentFrame
+
+local visualsContent = Instance.new("Frame")
+visualsContent.Size = UDim2.new(1, 0, 1, 0)
+visualsContent.Position = UDim2.new(0, 0, 0, 0)
+visualsContent.BackgroundTransparency = 1
+visualsContent.Visible = false
+visualsContent.Parent = contentFrame
+
+-- Налаштування Aimbot
+local aimLockButton = Instance.new("TextButton")
+aimLockButton.Size = UDim2.new(0, 500, 0, 50)
+aimLockButton.Position = UDim2.new(0.5, -250, 0, 10)
+aimLockButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+aimLockButton.Text = "Aim Lock: OFF"
+aimLockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+aimLockButton.TextSize = 20
+aimLockButton.Font = Enum.Font.SourceSans
+aimLockButton.Parent = aimbotContent
+
+local aimLockCorner = Instance.new("UICorner")
+aimLockCorner.CornerRadius = UDim.new(0, 10)
+aimLockCorner.Parent = aimLockButton
+
+local aimLockGradient = Instance.new("UIGradient")
+aimLockGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+aimLockGradient.Parent = aimLockButton
+
+local aimLockStroke = Instance.new("UIStroke")
+aimLockStroke.Color = Color3.fromRGB(0, 255, 255)
+aimLockStroke.Thickness = 2
+aimLockStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+aimLockStroke.Parent = aimLockButton
+
+local autoShootButton = Instance.new("TextButton")
+autoShootButton.Size = UDim2.new(0, 500, 0, 50)
+autoShootButton.Position = UDim2.new(0.5, -250, 0, 70)
+autoShootButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+autoShootButton.Text = "Auto Shoot: OFF"
+autoShootButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+autoShootButton.TextSize = 20
+autoShootButton.Font = Enum.Font.SourceSans
+autoShootButton.Parent = aimbotContent
+
+local autoShootCorner = Instance.new("UICorner")
+autoShootCorner.CornerRadius = UDim.new(0, 10)
+autoShootCorner.Parent = autoShootButton
+
+local autoShootGradient = Instance.new("UIGradient")
+autoShootGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+autoShootGradient.Parent = autoShootButton
+
+local autoShootStroke = Instance.new("UIStroke")
+autoShootStroke.Color = Color3.fromRGB(0, 255, 255)
+autoShootStroke.Thickness = 2
+autoShootStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+autoShootStroke.Parent = autoShootButton
+
+local visibleButton = Instance.new("TextButton")
+visibleButton.Size = UDim2.new(0, 500, 0, 50)
+visibleButton.Position = UDim2.new(0.5, -250, 0, 130)
+visibleButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+visibleButton.Text = "Visible Check: OFF"
+visibleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+visibleButton.TextSize = 20
+visibleButton.Font = Enum.Font.SourceSans
+visibleButton.Parent = aimbotContent
+
+local visibleCorner = Instance.new("UICorner")
+visibleCorner.CornerRadius = UDim.new(0, 10)
+visibleCorner.Parent = visibleButton
+
+local visibleGradient = Instance.new("UIGradient")
+visibleGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+visibleGradient.Parent = visibleButton
+
+local visibleStroke = Instance.new("UIStroke")
+visibleStroke.Color = Color3.fromRGB(0, 255, 255)
+visibleStroke.Thickness = 2
+visibleStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+visibleStroke.Parent = visibleButton
+
+local teamCheckButton = Instance.new("TextButton")
+teamCheckButton.Size = UDim2.new(0, 500, 0, 50)
+teamCheckButton.Position = UDim2.new(0.5, -250, 0, 190)
+teamCheckButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+teamCheckButton.Text = "Team Check: OFF"
+teamCheckButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+teamCheckButton.TextSize = 20
+teamCheckButton.Font = Enum.Font.SourceSans
+teamCheckButton.Parent = aimbotContent
+
+local teamCheckCorner = Instance.new("UICorner")
+teamCheckCorner.CornerRadius = UDim.new(0, 10)
+teamCheckCorner.Parent = teamCheckButton
+
+local teamCheckGradient = Instance.new("UIGradient")
+teamCheckGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+teamCheckGradient.Parent = teamCheckButton
+
+local teamCheckStroke = Instance.new("UIStroke")
+teamCheckStroke.Color = Color3.fromRGB(0, 255, 255)
+teamCheckStroke.Thickness = 2
+teamCheckStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+teamCheckStroke.Parent = teamCheckButton
+
+local distanceLabel = Instance.new("TextLabel")
+distanceLabel.Size = UDim2.new(0, 150, 0, 30)
+distanceLabel.Position = UDim2.new(0, 50, 0, 250)
+distanceLabel.BackgroundTransparency = 1
+distanceLabel.Text = "Distance (m):"
+distanceLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+distanceLabel.TextSize = 18
+distanceLabel.Font = Enum.Font.SourceSans
+distanceLabel.Parent = aimbotContent
+
+local distanceSliderFrame = Instance.new("Frame")
+distanceSliderFrame.Size = UDim2.new(0, 200, 0, 20)
+distanceSliderFrame.Position = UDim2.new(0, 200, 0, 250)
+distanceSliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+distanceSliderFrame.Parent = aimbotContent
+
+local distanceSliderCorner = Instance.new("UICorner")
+distanceSliderCorner.CornerRadius = UDim.new(0, 10)
+distanceSliderCorner.Parent = distanceSliderFrame
+
+local distanceSliderGradient = Instance.new("UIGradient")
+distanceSliderGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+}
+distanceSliderGradient.Parent = distanceSliderFrame
+
+local distanceSliderBar = Instance.new("Frame")
+distanceSliderBar.Size = UDim2.new(0.5, 0, 1, 0)
+distanceSliderBar.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+distanceSliderBar.Parent = distanceSliderFrame
+
+local distanceSliderBarCorner = Instance.new("UICorner")
+distanceSliderBarCorner.CornerRadius = UDim.new(0, 10)
+distanceSliderBarCorner.Parent = distanceSliderBar
+
+local distanceSliderBarGradient = Instance.new("UIGradient")
+distanceSliderBarGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 200)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 120))
+}
+distanceSliderBarGradient.Parent = distanceSliderBar
+
+local distanceValueLabel = Instance.new("TextLabel")
+distanceValueLabel.Size = UDim2.new(0, 100, 0, 30)
+distanceValueLabel.Position = UDim2.new(0, 410, 0, 250)
+distanceValueLabel.BackgroundTransparency = 1
+distanceValueLabel.Text = "100"
+distanceValueLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+distanceValueLabel.TextSize = 18
+distanceValueLabel.Font = Enum.Font.SourceSans
+distanceValueLabel.Parent = aimbotContent
+
+local smoothLabel = Instance.new("TextLabel")
+smoothLabel.Size = UDim2.new(0, 150, 0, 30)
+smoothLabel.Position = UDim2.new(0, 50, 0, 290)
+smoothLabel.BackgroundTransparency = 1
+smoothLabel.Text = "Smoothness:"
+smoothLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+smoothLabel.TextSize = 18
+smoothLabel.Font = Enum.Font.SourceSans
+smoothLabel.Parent = aimbotContent
+
+local smoothSliderFrame = Instance.new("Frame")
+smoothSliderFrame.Size = UDim2.new(0, 200, 0, 20)
+smoothSliderFrame.Position = UDim2.new(0, 200, 0, 290)
+smoothSliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+smoothSliderFrame.Parent = aimbotContent
+
+local smoothSliderCorner = Instance.new("UICorner")
+smoothSliderCorner.CornerRadius = UDim.new(0, 10)
+smoothSliderCorner.Parent = smoothSliderFrame
+
+local smoothSliderGradient = Instance.new("UIGradient")
+smoothSliderGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+}
+smoothSliderGradient.Parent = smoothSliderFrame
+
+local smoothSliderBar = Instance.new("Frame")
+smoothSliderBar.Size = UDim2.new(0.5, 0, 1, 0)
+smoothSliderBar.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+smoothSliderBar.Parent = smoothSliderFrame
+
+local smoothSliderBarCorner = Instance.new("UICorner")
+smoothSliderBarCorner.CornerRadius = UDim.new(0, 10)
+smoothSliderBarCorner.Parent = smoothSliderBar
+
+local smoothSliderBarGradient = Instance.new("UIGradient")
+smoothSliderBarGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 200)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 120))
+}
+smoothSliderBarGradient.Parent = smoothSliderBar
+
+local smoothValueLabel = Instance.new("TextLabel")
+smoothValueLabel.Size = UDim2.new(0, 100, 0, 30)
+smoothValueLabel.Position = UDim2.new(0, 410, 0, 290)
+smoothValueLabel.BackgroundTransparency = 1
+smoothValueLabel.Text = "0.5"
+smoothValueLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+smoothValueLabel.TextSize = 18
+smoothValueLabel.Font = Enum.Font.SourceSans
+smoothValueLabel.Parent = aimbotContent
+
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(0, 150, 0, 30)
+speedLabel.Position = UDim2.new(0, 50, 0, 330)
+speedLabel.BackgroundTransparency = 1
+speedLabel.Text = "Aimbot Speed:"
+speedLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+speedLabel.TextSize = 18
+speedLabel.Font = Enum.Font.SourceSans
+speedLabel.Parent = aimbotContent
+
+local speedSliderFrame = Instance.new("Frame")
+speedSliderFrame.Size = UDim2.new(0, 200, 0, 20)
+speedSliderFrame.Position = UDim2.new(0, 200, 0, 330)
+speedSliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+speedSliderFrame.Parent = aimbotContent
+
+local speedSliderCorner = Instance.new("UICorner")
+speedSliderCorner.CornerRadius = UDim.new(0, 10)
+speedSliderCorner.Parent = speedSliderFrame
+
+local speedSliderGradient = Instance.new("UIGradient")
+speedSliderGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+}
+speedSliderGradient.Parent = speedSliderFrame
+
+local speedSliderBar = Instance.new("Frame")
+speedSliderBar.Size = UDim2.new(0.5, 0, 1, 0)
+speedSliderBar.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+speedSliderBar.Parent = speedSliderFrame
+
+local speedSliderBarCorner = Instance.new("UICorner")
+speedSliderBarCorner.CornerRadius = UDim.new(0, 10)
+speedSliderBarCorner.Parent = speedSliderBar
+
+local speedSliderBarGradient = Instance.new("UIGradient")
+speedSliderBarGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 200)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 120))
+}
+speedSliderBarGradient.Parent = speedSliderBar
+
+local speedValueLabel = Instance.new("TextLabel")
+speedValueLabel.Size = UDim2.new(0, 100, 0, 30)
+speedValueLabel.Position = UDim2.new(0, 410, 0, 330)
+speedValueLabel.BackgroundTransparency = 1
+speedValueLabel.Text = "1.0"
+speedValueLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+speedValueLabel.TextSize = 18
+speedValueLabel.Font = Enum.Font.SourceSans
+speedValueLabel.Parent = aimbotContent
+
+local targetModeLabel = Instance.new("TextLabel")
+targetModeLabel.Size = UDim2.new(0, 150, 0, 30)
+targetModeLabel.Position = UDim2.new(0, 50, 0, 370)
+targetModeLabel.BackgroundTransparency = 1
+targetModeLabel.Text = "Target Mode:"
+targetModeLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+targetModeLabel.TextSize = 18
+targetModeLabel.Font = Enum.Font.SourceSans
+targetModeLabel.Parent = aimbotContent
+
+local targetModeButton = Instance.new("TextButton")
+targetModeButton.Size = UDim2.new(0, 200, 0, 30)
+targetModeButton.Position = UDim2.new(0, 200, 0, 370)
+targetModeButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+targetModeButton.Text = "Auto"
+targetModeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+targetModeButton.TextSize = 18
+targetModeButton.Font = Enum.Font.SourceSans
+targetModeButton.Parent = aimbotContent
+
+local targetModeCorner = Instance.new("UICorner")
+targetModeCorner.CornerRadius = UDim.new(0, 10)
+targetModeCorner.Parent = targetModeButton
+
+local targetModeGradient = Instance.new("UIGradient")
+targetModeGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+targetModeGradient.Parent = targetModeButton
+
+local targetModeStroke = Instance.new("UIStroke")
+targetModeStroke.Color = Color3.fromRGB(0, 255, 255)
+targetModeStroke.Thickness = 2
+targetModeStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+targetModeStroke.Parent = targetModeButton
+
+-- Налаштування ESP
+local espButton = Instance.new("TextButton")
+espButton.Size = UDim2.new(0, 500, 0, 50)
+espButton.Position = UDim2.new(0.5, -250, 0, 10)
+espButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+espButton.Text = "ESP: OFF"
+espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+espButton.TextSize = 20
+espButton.Font = Enum.Font.SourceSans
+espButton.Parent = espContent
+
+local espCorner = Instance.new("UICorner")
+espCorner.CornerRadius = UDim.new(0, 10)
+espCorner.Parent = espButton
+
+local espGradient = Instance.new("UIGradient")
+espGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 120, 255))
+}
+espGradient.Parent = espButton
+
+local espStroke = Instance.new("UIStroke")
+espStroke.Color = Color3.fromRGB(0, 255, 255)
+espStroke.Thickness = 2
+espStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+espStroke.Parent = espButton
+
+local espDistanceLabel = Instance.new("TextLabel")
+espDistanceLabel.Size = UDim2.new(0, 150, 0, 30)
+espDistanceLabel.Position = UDim2.new(0, 50, 0, 70)
+espDistanceLabel.BackgroundTransparency = 1
+espDistanceLabel.Text = "ESP Distance (m):"
+espDistanceLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+espDistanceLabel.TextSize = 18
+espDistanceLabel.Font = Enum.Font.SourceSans
+espDistanceLabel.Parent = espContent
+
+local espDistanceSliderFrame = Instance.new("Frame")
+espDistanceSliderFrame.Size = UDim2.new(0, 200, 0, 20)
+espDistanceSliderFrame.Position = UDim2.new(0, 200, 0, 70)
+espDistanceSliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+espDistanceSliderFrame.Parent = espContent
+
+local espDistanceSliderCorner = Instance.new("UICorner")
+espDistanceSliderCorner.CornerRadius = UDim.new(0, 10)
+espDistanceSliderCorner.Parent = espDistanceSliderFrame
+
+local espDistanceSliderGradient = Instance.new("UIGradient")
+espDistanceSliderGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+}
+espDistanceSliderGradient.Parent = espDistanceSliderFrame
+
+local espDistanceSliderBar = Instance.new("Frame")
+espDistanceSliderBar.Size = UDim2.new(0.5, 0, 1, 0)
+espDistanceSliderBar.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+espDistanceSliderBar.Parent = espDistanceSliderFrame
+
+local espDistanceSliderBarCorner = Instance.new("UICorner")
+espDistanceSliderBarCorner.CornerRadius = UDim.new(0, 10)
+espDistanceSliderBarCorner.Parent = espDistanceSliderBar
+
+local espDistanceSliderBarGradient = Instance.new("UIGradient")
+espDistanceSliderBarGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 200)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 120))
+}
+espDistanceSliderBarGradient.Parent = espDistanceSliderBar
+
+local espDistanceValueLabel = Instance.new("TextLabel")
+espDistanceValueLabel.Size = UDim2.new(0, 100, 0, 30)
+espDistanceValueLabel.Position = UDim2.new(0, 410, 0, 70)
+espDistanceValueLabel.BackgroundTransparency = 1
+espDistanceValueLabel.Text = "100"
+espDistanceValueLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+espDistanceValueLabel.TextSize = 18
+espDistanceValueLabel.Font = Enum.Font.SourceSans
+espDistanceValueLabel.Parent = espContent
+
+-- Загальні налаштування
+local fovLabel = Instance.new("TextLabel")
+fovLabel.Size = UDim2.new(0, 150, 0, 30)
+fovLabel.Position = UDim2.new(0, 50, 0, 10)
+fovLabel.BackgroundTransparency = 1
+fovLabel.Text = "FOV (px):"
+fovLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+fovLabel.TextSize = 18
+fovLabel.Font = Enum.Font.SourceSans
+fovLabel.Parent = generalContent
+
+local fovInput = Instance.new("TextBox")
+fovInput.Size = UDim2.new(0, 200, 0, 30)
+fovInput.Position = UDim2.new(0, 200, 0, 10)
+fovInput.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+fovInput.Text = "500"
+fovInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+fovInput.TextSize = 18
+fovInput.Font = Enum.Font.SourceSans
+fovInput.Parent = generalContent
+
+local fovInputCorner = Instance.new("UICorner")
+fovInputCorner.CornerRadius = UDim.new(0, 10)
+fovInputCorner.Parent = fovInput
+
+local fovInputGradient = Instance.new("UIGradient")
+fovInputGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+}
+fovInputGradient.Parent = fovInput
+
+local fovColorLabel = Instance.new("TextLabel")
+fovColorLabel.Size = UDim2.new(0, 150, 0, 30)
+fovColorLabel.Position = UDim2.new(0, 50, 0, 50)
+fovColorLabel.BackgroundTransparency = 1
+fovColorLabel.Text = "FOV Color:"
+fovColorLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+fovColorLabel.TextSize = 18
+fovColorLabel.Font = Enum.Font.SourceSans
+fovColorLabel.Parent = generalContent
+
+local fovColorButton = Instance.new("TextButton")
+fovColorButton.Size = UDim2.new(0, 200, 0, 30)
+fovColorButton.Position = UDim2.new(0, 200, 0, 50)
+fovColorButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+fovColorButton.Text = "Cyan"
+fovColorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+fovColorButton.TextSize = 18
+fovColorButton.Font = Enum.Font.SourceSans
+fovColorButton.Parent = generalContent
+
+local fovColorCorner = Instance.new("UICorner")
+fovColorCorner.CornerRadius = UDim.new(0, 10)
+fovColorCorner.Parent = fovColorButton
+
+local fovColorGradient = Instance.new("UIGradient")
+fovColorGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 255, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 255))
+}
+fovColorGradient.Parent = fovColorButton
+
+local fovColorStroke = Instance.new("UIStroke")
+fovColorStroke.Color = Color3.fromRGB(0, 255, 255)
+fovColorStroke.Thickness = 2
+fovColorStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+fovColorStroke.Parent = fovColorButton
+
+-- Налаштування візуальних ефектів
+local fovSizeLabel = Instance.new("TextLabel")
+fovSizeLabel.Size = UDim2.new(0, 150, 0, 30)
+fovSizeLabel.Position = UDim2.new(0, 50, 0, 10)
+fovSizeLabel.BackgroundTransparency = 1
+fovSizeLabel.Text = "FOV Size (px):"
+fovSizeLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+fovSizeLabel.TextSize = 18
+fovSizeLabel.Font = Enum.Font.SourceSans
+fovSizeLabel.Parent = visualsContent
+
+local fovSizeSliderFrame = Instance.new("Frame")
+fovSizeSliderFrame.Size = UDim2.new(0, 200, 0, 20)
+fovSizeSliderFrame.Position = UDim2.new(0, 200, 0, 10)
+fovSizeSliderFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+fovSizeSliderFrame.Parent = visualsContent
+
+local fovSizeSliderCorner = Instance.new("UICorner")
+fovSizeSliderCorner.CornerRadius = UDim.new(0, 10)
+fovSizeSliderCorner.Parent = fovSizeSliderFrame
+
+local fovSizeSliderGradient = Instance.new("UIGradient")
+fovSizeSliderGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 50)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 30, 30))
+}
+fovSizeSliderGradient.Parent = fovSizeSliderFrame
+
+local fovSizeSliderBar = Instance.new("Frame")
+fovSizeSliderBar.Size = UDim2.new(0.5, 0, 1, 0)
+fovSizeSliderBar.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+fovSizeSliderBar.Parent = fovSizeSliderFrame
+
+local fovSizeSliderBarCorner = Instance.new("UICorner")
+fovSizeSliderBarCorner.CornerRadius = UDim.new(0, 10)
+fovSizeSliderBarCorner.Parent = fovSizeSliderBar
+
+local fovSizeSliderBarGradient = Instance.new("UIGradient")
+fovSizeSliderBarGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 255, 200)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 120))
+}
+fovSizeSliderBarGradient.Parent = fovSizeSliderBar
+
+local fovSizeValueLabel = Instance.new("TextLabel")
+fovSizeValueLabel.Size = UDim2.new(0, 100, 0, 30)
+fovSizeValueLabel.Position = UDim2.new(0, 410, 0, 10)
+fovSizeValueLabel.BackgroundTransparency = 1
+fovSizeValueLabel.Text = "500"
+fovSizeValueLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+fovSizeValueLabel.TextSize = 18
+fovSizeValueLabel.Font = Enum.Font.SourceSans
+fovSizeValueLabel.Parent = visualsContent
+
+local espColorLabel = Instance.new("TextLabel")
+espColorLabel.Size = UDim2.new(0, 150, 0, 30)
+espColorLabel.Position = UDim2.new(0, 50, 0, 50)
+espColorLabel.BackgroundTransparency = 1
+espColorLabel.Text = "ESP Color:"
+espColorLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+espColorLabel.TextSize = 18
+espColorLabel.Font = Enum.Font.SourceSans
+espColorLabel.Parent = visualsContent
+
+local espColorButton = Instance.new("TextButton")
+espColorButton.Size = UDim2.new(0, 200, 0, 30)
+espColorButton.Position = UDim2.new(0, 200, 0, 50)
+espColorButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+espColorButton.Text = "Green"
+espColorButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+espColorButton.TextSize = 18
+espColorButton.Font = Enum.Font.SourceSans
+espColorButton.Parent = visualsContent
+
+local espColorCorner = Instance.new("UICorner")
+espColorCorner.CornerRadius = UDim.new(0, 10)
+espColorCorner.Parent = espColorButton
+
+local espColorGradient = Instance.new("UIGradient")
+espColorGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(100, 255, 100)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 0))
+}
+espColorGradient.Parent = espColorButton
+
+local espColorStroke = Instance.new("UIStroke")
+espColorStroke.Color = Color3.fromRGB(0, 255, 255)
+espColorStroke.Thickness = 2
+espColorStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+espColorStroke.Parent = espColorButton
+
+-- Коло FOV
+local fovCircle = Instance.new("Frame")
+fovCircle.Size = UDim2.new(0, 500, 0, 500)
+fovCircle.Position = UDim2.new(0.5, 0, 0.5, 0)
+fovCircle.AnchorPoint = Vector2.new(0.5, 0.5)
+fovCircle.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+fovCircle.BackgroundTransparency = 0.8
+fovCircle.BorderSizePixel = 0
+fovCircle.Parent = screenGui
+fovCircle.Visible = false
+
+local fovCircleCorner = Instance.new("UICorner")
+fovCircleCorner.CornerRadius = UDim.new(1, 0)
+fovCircleCorner.Parent = fovCircle
+
+local fovGradient = Instance.new("UIGradient")
+fovGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 200, 255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0, 255, 255))
+}
+fovGradient.Parent = fovCircle
+
+local fovStroke = Instance.new("UIStroke")
+fovStroke.Color = Color3.fromRGB(0, 255, 255)
+fovStroke.Thickness = 3
+fovStroke.Transparency = 0.5
+fovStroke.Parent = fovCircle
+
+local fovGlow = Instance.new("UIStroke")
+fovGlow.Thickness = 5
+fovGlow.Color = Color3.fromRGB(0, 255, 255)
+fovGlow.Transparency = 0.7
+fovGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+fovGlow.Parent = fovCircle
+
+local fovGlowTween = TweenService:Create(fovGlow, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {Transparency = 0.3})
+fovGlowTween:Play()
+
+-- Функція перетягування
+local dragging = false
+local dragStart = nil
+local startPos = nil
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+
+frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = false
+    end
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+    screenGui.Enabled = false
+end)
+
+minimizeButton.MouseButton1Click:Connect(function()
+    frame.Visible = false
+    openButton.Visible = true
+    print("GUI minimized")
+end)
+
+openButton.MouseButton1Click:Connect(function()
+    frame.Visible = true
+    openButton.Visible = false
+    print("GUI opened")
+end)
+
+-- Перемикання вкладок
+aimbotTab.MouseButton1Click:Connect(function()
+    aimbotContent.Visible = true
+    espContent.Visible = false
+    generalContent.Visible = false
+    visualsContent.Visible = false
+    aimbotTab.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+    espTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    generalTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    visualsTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    print("Switched to Aimbot tab")
+end)
+
+espTab.MouseButton1Click:Connect(function()
+    aimbotContent.Visible = false
+    espContent.Visible = true
+    generalContent.Visible = false
+    visualsContent.Visible = false
+    aimbotTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    espTab.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+    generalTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    visualsTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    print("Switched to ESP tab")
+end)
+
+generalTab.MouseButton1Click:Connect(function()
+    aimbotContent.Visible = false
+    espContent.Visible = false
+    generalContent.Visible = true
+    visualsContent.Visible = false
+    aimbotTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    espTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    generalTab.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+    visualsTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    print("Switched to General tab")
+end)
+
+visualsTab.MouseButton1Click:Connect(function()
+    aimbotContent.Visible = false
+    espContent.Visible = false
+    generalContent.Visible = false
+    visualsContent.Visible = true
+    aimbotTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    espTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    generalTab.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+    visualsTab.BackgroundColor3 = Color3.fromRGB(0, 255, 120)
+    print("Switched to Visuals tab")
+end)
+
+-- Змінні
+local espEnabled = false
+local espElements = {}
+local visibleCheck = false
+local autoShootEnabled = false
+local aimLockEnabled = false
+local teamCheckEnabled = false
+local aimDistance = 100
+local espDistance = 100
+local smoothness = 0.5
+local aimSpeed = 1.0
+local targetMode = "Auto"
+local fovRadius = 500
+local fovColor = Color3.fromRGB(0, 255, 255)
+local espColor = Color3.fromRGB(0, 255, 0)
+local isAiming = false
+local wheelBind = "Aimbot"
+
+-- Логіка ESP
+local function updateEspDistance(value)
+    espDistance = math.clamp(value, 10, 500)
+    espDistanceValueLabel.Text = tostring(math.floor(espDistance))
+    espDistanceSliderBar.Size = UDim2.new((espDistance - 10) / (500 - 10), 0, 1, 0)
+    print("ESP Distance: " .. espDistance .. " m")
+end
+
+espDistanceSliderFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local mouseX = UserInputService:GetMouseLocation().X
+        local frameX = espDistanceSliderFrame.AbsolutePosition.X
+        local frameWidth = espDistanceSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateEspDistance(10 + (relativeX * (500 - 10)))
+    end
+end)
+
+espDistanceSliderFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+        local mouseX = input.Position.X
+        local frameX = espDistanceSliderFrame.AbsolutePosition.X
+        local frameWidth = espDistanceSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateEspDistance(10 + (relativeX * (500 - 10)))
+    end
+end)
+
+local function isVisible(targetPlayer, targetPart)
+    if not visibleCheck then return true end
+    if not player.Character or not player.Character:FindFirstChild("Head") then return false end
+    if not targetPlayer.Character or not targetPlayer.Character:FindFirstChild(targetPart) then return false end
+    local part = targetPlayer.Character[targetPart]
+    local rayOrigin = camera.CFrame.Position
+    local rayDirection = (part.Position - rayOrigin).Unit * (part.Position - rayOrigin).Magnitude
+    local raycastParams = RaycastParams.new()
+    raycastParams.FilterDescendantsInstances = {player.Character}
+    raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+    local result = workspace:Raycast(rayOrigin, rayDirection, raycastParams)
+    return not result or result.Instance:IsDescendantOf(targetPlayer.Character)
+end
+
+local function createEsp(targetPlayer)
+    if targetPlayer ~= player and targetPlayer.Character then
+        local character = targetPlayer.Character
+        local head = character:FindFirstChild("Head")
+        local humanoid = character:FindFirstChild("Humanoid")
+        if head and humanoid and humanoid.Health > 0 then
+            local distance = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and (player.Character.HumanoidRootPart.Position - head.Position).Magnitude or math.huge
+            if distance <= espDistance then
+                local billboard = Instance.new("BillboardGui")
+                billboard.Adornee = head
+                billboard.Size = UDim2.new(0, 150, 0, 75)
+                billboard.StudsOffset = Vector3.new(0, 3, 0)
+                billboard.AlwaysOnTop = true
+                billboard.Parent = head
+
+                local nameLabel = Instance.new("TextLabel")
+                nameLabel.Size = UDim2.new(1, 0, 0.3, 0)
+                nameLabel.BackgroundTransparency = 1
+                nameLabel.Text = targetPlayer.Name
+                nameLabel.TextColor3 = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+                nameLabel.TextSize = 14
+                nameLabel.Font = Enum.Font.SourceSansBold
+                nameLabel.Parent = billboard
+
+                local healthLabel = Instance.new("TextLabel")
+                healthLabel.Size = UDim2.new(1, 0, 0.3, 0)
+                healthLabel.Position = UDim2.new(0, 0, 0.3, 0)
+                healthLabel.BackgroundTransparency = 1
+                healthLabel.Text = "HP: " .. math.floor(humanoid.Health)
+                healthLabel.TextColor3 = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+                healthLabel.TextSize = 12
+                healthLabel.Font = Enum.Font.SourceSans
+                healthLabel.Parent = billboard
+
+                local distanceLabel = Instance.new("TextLabel")
+                distanceLabel.Size = UDim2.new(1, 0, 0.3, 0)
+                distanceLabel.Position = UDim2.new(0, 0, 0.6, 0)
+                distanceLabel.BackgroundTransparency = 1
+                distanceLabel.Text = "Distance: " .. math.floor(distance) .. " m"
+                distanceLabel.TextColor3 = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+                distanceLabel.TextSize = 12
+                distanceLabel.Font = Enum.Font.SourceSans
+                distanceLabel.Parent = billboard
+
+                local highlight = Instance.new("Highlight")
+                highlight.Adornee = character
+                highlight.FillColor = isVisible(targetPlayer, "Head") and espColor or Color3.fromRGB(255, 0, 0)
+                highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                highlight.FillTransparency = 0.5
+                highlight.OutlineTransparency = 0
+                highlight.Parent = character
+
+                espElements[targetPlayer] = {billboard = billboard, highlight = highlight, healthLabel = healthLabel, distanceLabel = distanceLabel, nameLabel = nameLabel}
+                print("ESP created for: " .. targetPlayer.Name)
+            end
+        end
+    end
+end
+
+local function removeEsp(targetPlayer)
+    if espElements[targetPlayer] then
+        if espElements[targetPlayer].billboard then
+            espElements[targetPlayer].billboard:Destroy()
+        end
+        if espElements[targetPlayer].highlight then
+            espElements[targetPlayer].highlight:Destroy()
+        end
+        espElements[targetPlayer] = nil
+        print("ESP removed for: " .. targetPlayer.Name)
+    end
+end
+
+local function updateEsp()
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if espEnabled then
+            if not espElements[targetPlayer] then
+                createEsp(targetPlayer)
+            end
+            if espElements[targetPlayer] then
+                local billboard = espElements[targetPlayer].billboard
+                local highlight = espElements[targetPlayer].highlight
+                local healthLabel = espElements[targetPlayer].healthLabel
+                local distanceLabel = espElements[targetPlayer].distanceLabel
+                local nameLabel = espElements[targetPlayer].nameLabel
+                if targetPlayer.Character and targetPlayer.Character:FindFirstChild("Humanoid") and targetPlayer.Character:FindFirstChild("Head") then
+                    local humanoid = targetPlayer.Character.Humanoid
+                    local distance = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and (player.Character.HumanoidRootPart.Position - targetPlayer.Character.Head.Position).Magnitude or math.huge
+                    if distance > espDistance or humanoid.Health <= 0 then
+                        removeEsp(targetPlayer)
+                    else
+                        local isVis = isVisible(targetPlayer, "Head")
+                        nameLabel.TextColor3 = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                        healthLabel.Text = "HP: " .. math.floor(humanoid.Health)
+                        healthLabel.TextColor3 = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                        distanceLabel.Text = "Distance: " .. math.floor(distance) .. " m"
+                        distanceLabel.TextColor3 = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                        highlight.FillColor = isVis and espColor or Color3.fromRGB(255, 0, 0)
+                    end
+                else
+                    removeEsp(targetPlayer)
+                end
+            end
+        else
+            removeEsp(targetPlayer)
+        end
+    end
+end
+
+espButton.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    espButton.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+    espButton.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(0, 120, 255)
+    print("ESP: " .. (espEnabled and "ON" or "OFF"))
+end)
+
+-- Логіка Aimbot
+local function updateDistance(value)
+    aimDistance = math.clamp(value, 10, 500)
+    distanceValueLabel.Text = tostring(math.floor(aimDistance))
+    distanceSliderBar.Size = UDim2.new((aimDistance - 10) / (500 - 10), 0, 1, 0)
+    print("Aimbot Distance: " .. aimDistance .. " m")
+end
+
+distanceSliderFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local mouseX = UserInputService:GetMouseLocation().X
+        local frameX = distanceSliderFrame.AbsolutePosition.X
+        local frameWidth = distanceSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateDistance(10 + (relativeX * (500 - 10)))
+    end
+end)
+
+distanceSliderFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+        local mouseX = input.Position.X
+        local frameX = distanceSliderFrame.AbsolutePosition.X
+        local frameWidth = distanceSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateDistance(10 + (relativeX * (500 - 10)))
+    end
+end)
+
+local function updateSmoothness(value)
+    smoothness = math.clamp(value, 0.1, 2.0)
+    smoothValueLabel.Text = string.format("%.2f", smoothness)
+    smoothSliderBar.Size = UDim2.new((smoothness - 0.1) / (2.0 - 0.1), 0, 1, 0)
+    print("Aimbot Smoothness: " .. smoothness)
+end
+
+smoothSliderFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local mouseX = UserInputService:GetMouseLocation().X
+        local frameX = smoothSliderFrame.AbsolutePosition.X
+        local frameWidth = smoothSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateSmoothness(0.1 + (relativeX * (2.0 - 0.1)))
+    end
+end)
+
+smoothSliderFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+        local mouseX = input.Position.X
+        local frameX = smoothSliderFrame.AbsolutePosition.X
+        local frameWidth = smoothSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateSmoothness(0.1 + (relativeX * (2.0 - 0.1)))
+    end
+end)
+
+local function updateAimSpeed(value)
+    aimSpeed = math.clamp(value, 0.5, 3.0)
+    speedValueLabel.Text = string.format("%.1f", aimSpeed)
+    speedSliderBar.Size = UDim2.new((aimSpeed - 0.5) / (3.0 - 0.5), 0, 1, 0)
+    print("Aimbot Speed: " .. aimSpeed)
+end
+
+speedSliderFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        local mouseX = UserInputService:GetMouseLocation().X
+        local frameX = speedSliderFrame.AbsolutePosition.X
+        local frameWidth = speedSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateAimSpeed(0.5 + (relativeX * (3.0 - 0.5)))
+    end
+end)
+
+speedSliderFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+        local mouseX = input.Position.X
+        local frameX = speedSliderFrame.AbsolutePosition.X
+        local frameWidth = speedSliderFrame.AbsoluteSize.X
+        local relativeX = math.clamp((mouseX - frameX) / frameWidth, 0, 1)
+        updateAimSpeed(0.5 + (relativeX * (3.0 - 0.5)))
+    end
+end)
+
+targetModeButton.MouseButton1Click:Connect(function()
+    if targetMode == "Auto" then
+        targetMode = "Head"
+    elseif targetMode == "Head" then
+        targetMode = "Torso"
+    else
+        targetMode = "Auto"
+    end
+    targetModeButton.Text = targetMode
+    print("Target Mode: " .. targetMode)
+end)
+
+fovInput.FocusLost:Connect(function()
+    local value = tonumber(fovInput.Text)
+    if value and value > 0 then
+        fovRadius = value
+        fovCircle.Size = UDim2.new(0, fovRadius * 2, 0, fovRadius * 2)
+        print("FOV: " .. fovRadius)
+    else
+        fovInput.Text = tostring(fovRadius)
+    end
+end)
+
+local fovColors = {
+    ["Cyan"] = Color3.fromRGB(0, 255, 255),
+    ["Red"] = Color3.fromRGB(255, 0, 0),
+    ["Green"] = Color3.fromRGB(0, 255, 0),
+    ["Purple"] = Color3.fromRGB(255, 0, 255)
+}
+
+fovColorButton.MouseButton1Click:Connect(function()
+    local currentColor = fovColorButton.Text
+    if currentColor == "Cyan" then
+        fovColorButton.Text = "Red"
+        fovColor = fovColors["Red"]
+    elseif currentColor == "Red" then
+        fovColorButton.Text = "Green"
+        fovColor = fovColors["Green"]
+    elseif currentColor == "Green" then
+        fovColorButton.Text = "Purple"
+        fovColor = fovColors["Purple"]
+    else
+        fovColorButton.Text = "Cyan"
+        fovColor = fovColors["Cyan"]
+    end
+    fovColorButton.BackgroundColor3 = fovColor
+    fovGradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, fovColor:Lerp(Color3.fromRGB(100, 100, 100), 0.3)),
+        ColorSequenceKeypoint.new(1, fovColor)
+    }
+    fovStroke.Color = fovColor
+    fovGlow.Color = fovColor
+    print("FOV Color: " .. fovColorButton.Text)
+end)
+
+visibleButton.MouseButton1Click:Connect(function()
+    visibleCheck = not visibleCheck
+    visibleButton.Text = "Visible Check: " .. (visibleCheck and "ON" or "OFF")
+    visibleButton.BackgroundColor3 = visibleCheck and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(0, 120, 255)
+    print("Visible Check: " .. (visibleCheck and "ON" or "OFF"))
+end)
+
+autoShootButton.MouseButton1Click:Connect(function()
+    autoShootEnabled = not autoShootEnabled
+    autoShootButton.Text = "Auto Shoot: " .. (autoShootEnabled and "ON" or "OFF")
+    autoShootButton.BackgroundColor3 = autoShootEnabled and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(0, 120, 255)
+    print("Auto Shoot: " .. (autoShootEnabled and "ON" or "OFF"))
+end)
+
+aimLockButton.MouseButton1Click:Connect(function()
+    aimLockEnabled = not aimLockEnabled
+    aimLockButton.Text = "Aim Lock: " .. (aimLockEnabled and "ON" or "OFF")
+    aimLockButton.BackgroundColor3 = aimLockEnabled and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(0, 120, 255)
+    print("Aim Lock: " .. (aimLockEnabled and "ON" or "OFF"))
+end)
+
+teamCheckButton.MouseButton1Click:Connect(function()
+    teamCheckEnabled = not teamCheckEnabled
+    teamCheckButton.Text = "Team Check: " .. (teamCheckEnabled and "ON" or "OFF")
+    teamCheckButton.BackgroundColor3 = teamCheckEnabled and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(0, 120, 255)
+    print("Team Check: " .. (teamCheckEnabled and "ON" or "OFF"))
+end)
+
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local closestValue = math.huge
+    local closestPart = nil
+    local mousePos = UserInputService:GetMouseLocation()
+    local lockedTarget = nil
+
+    if aimLockEnabled and lockedTarget then
+        if lockedTarget.Character and lockedTarget.Character:FindFirstChild(targetMode == "Torso" and "HumanoidRootPart" or "Head") and lockedTarget.Character:FindFirstChild("Humanoid") and lockedTarget.Character.Humanoid.Health > 0 then
+            return lockedTarget, targetMode == "Torso" and "HumanoidRootPart" or "Head"
+        else
+            lockedTarget = nil
+        end
+    end
+
+    for _, targetPlayer in pairs(Players:GetPlayers()) do
+        if targetPlayer ~= player and targetPlayer.Character and targetPlayer.Character:FindFirstChild("Head") and targetPlayer.Character:FindFirstChild("HumanoidRootPart") and targetPlayer.Character:FindFirstChild("Humanoid") then
+            local humanoid = targetPlayer.Character.Humanoid
+            if humanoid.Health > 0 and (not teamCheckEnabled or targetPlayer.Team ~= player.Team) then
+                local distance = (player.Character.HumanoidRootPart.Position - targetPlayer.Character.HumanoidRootPart.Position).Magnitude
+                if distance <= aimDistance then
+                    local screenPos, onScreen = camera:WorldToViewportPoint(targetPlayer.Character["Head"].Position)
+                    if onScreen then
+                        local value = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(mousePos.X, mousePos.Y)).Magnitude
+                        if value < closestValue and value <= fovRadius and (not visibleCheck or isVisible(targetPlayer, "Head")) then
+                            closestValue = value
+                            closestPlayer = targetPlayer
+                            if targetMode == "Auto" then
+                                closestPart = math.random() > 0.5 and "Head" or "HumanoidRootPart"
+                            elseif targetMode == "Head" then
+                                closestPart = "Head"
+                            else
+                                closestPart = "HumanoidRootPart"
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    if aimLockEnabled and closestPlayer then
+        lockedTarget = closestPlayer
+    end
+
+    return closestPlayer, closestPart
+end
+
+local function aimAt(target, partName)
+    if target and target.Character and target.Character:FindFirstChild(partName) then
+        local partPos = target.Character[partName].Position
+        local currentCamCFrame = camera.CFrame
+        local targetCFrame = CFrame.new(currentCamCFrame.Position, partPos)
+        local lerpValue = smoothness * aimSpeed
+        local tweenInfo = TweenInfo.new(0.1 / lerpValue, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+        TweenService:Create(camera, tweenInfo, {CFrame = targetCFrame}):Play()
+    end
+end
+
+-- Прив'язка до колеса миші
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton3 then
+        if wheelBind == "Aimbot" then
+            isAiming = not isAiming
+            fovCircle.Visible = isAiming
+            fovStroke.Color = isAiming and Color3.fromRGB(255, 0, 0) or fovColor
+            fovGlow.Color = isAiming and Color3.fromRGB(255, 0, 0) or fovColor
+            print("Aimbot: " .. (isAiming and "ON" or "OFF"))
+        elseif wheelBind == "ESP" then
+            espEnabled = not espEnabled
+            espButton.Text = "ESP: " .. (espEnabled and "ON" or "OFF")
+            espButton.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(0, 120, 255)
+            print("ESP: " .. (espEnabled and "ON" or "OFF"))
+        elseif wheelBind == "Auto Shoot" then
+            autoShootEnabled = not autoShootEnabled
+            autoShootButton.Text = "Auto Shoot: " .. (autoShootEnabled and "ON" or "OFF")
+            autoShootButton.BackgroundColor3 = autoShootEnabled and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(0, 120, 255)
+            print("Auto Shoot: " .. (autoShootEnabled and "ON" or "OFF"))
+        end
+    elseif input.UserInputType == Enum.UserInputType.MouseButton2 then
+        isAiming = true
+        fovCircle.Visible = true
+        fovStroke.Color = Color3.fromRGB(255, 0, 0)
+        fovGlow.Color = Color3.fromRGB(255, 0, 0)
+        print("Aimbot active")
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        isAiming = false
+        fovCircle.Visible = false
+        fovStroke.Color = fovColor
+        fovGlow.Color = fovColor
+        print("Aimbot inactive")
+    end
+end)
+
+-- Основний цикл
+RunService.RenderStepped:Connect(function()
+    updateEsp()
+    if isAiming then
+        local closestPlayer, closestPart = getClosestPlayer()
+        if closestPlayer and closestPart then
+            aimAt(closestPlayer, closestPart)
+            if autoShootEnabled then
+                print("Auto Shoot: Fired at " .. closestPlayer.Name)
+            end
+        end
+    end
+end)
+
+-- Вибір прив'язки колеса миші
+local bindOptions = {"Aimbot", "ESP", "Auto Shoot"}
+local bindIndex = 1
+wheelBind = bindOptions[bindIndex]
+print("Mouse Wheel Bind: " .. wheelBind)
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseWheel then
+        if input.Position.Z > 0 then
+            bindIndex = (bindIndex % #bindOptions) + 1
+        else
+            bindIndex = (bindIndex - 2) % #bindOptions + 1
+        end
+        wheelBind = bindOptions[bindIndex]
+        print("Mouse Wheel Bind: " .. wheelBind)
+    end
+end)
